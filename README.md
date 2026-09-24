@@ -193,6 +193,8 @@ the browser DevTools console for experimentation.
   (a guard against DNS rebinding).
 - **Untrusted feed content:** all feed text is HTML-escaped, links are restricted to `http(s)`,
   and malicious URLs and IPs are defanged (`hxxp`, `[.]`).
+- **Analytics:** the hosted site uses Cloudflare Web Analytics, which is cookie-free and reports
+  to the site's own origin. The CSP allows only its beacon script, nothing else from third parties.
 - **Security headers:** a strict Content-Security-Policy, plus `X-Frame-Options`,
   `Referrer-Policy`, `nosniff`, and HSTS when served over HTTPS. Every CDN script and the map data
   are pinned with Subresource Integrity hashes.
