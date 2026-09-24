@@ -3,8 +3,10 @@
    ========================================================================== */
 
 /* ISO 3166-1: alpha-2 -> [name, numeric code (matches world-atlas ids), lat, lng].
-   Generated from the `world-countries` package; lat/lng is a representative
-   point used to anchor globe arcs and markers. */
+   Derived from mledoze/countries (npm `world-countries`), licensed under the
+   Open Database License (ODbL) 1.0: https://opendatacommons.org/licenses/odbl/1.0/
+   lat/lng is a representative point used to anchor globe arcs and markers;
+   a few large countries use a hand-picked point instead of the geographic centre. */
 const COUNTRY_REF = {
   AW: ["Aruba","533",12.5,-69.97],
   AF: ["Afghanistan","004",33,65],

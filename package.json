@@ -13,5 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/carlmasters02/AEGIS-threat-dashboard.git"
   },
-  "homepage": "https://github.com/carlmasters02/AEGIS-threat-dashboard#readme"
+  "homepage": "https://github.com/carlmasters02/AEGIS-threat-dashboard#readme",
+  "license": "MIT",
+  "author": "Carl Masters (https://github.com/carlmasters02)"
 }
