@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "aegis-threat-dashboard",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-24",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Dashboard files. Every request goes through the Worker first so security headers are applied.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+
+  // Processed feed data written by the cron job and read by /api/*.
+  // No id: Wrangler creates the namespace on first deploy.
+  "kv_namespaces": [{ "binding": "DATA" }],
+
+  // Refresh sources every 5 minutes (each source still respects its own cache window).
+  "triggers": { "crons": ["*/5 * * * *"] },
+
+  "observability": {
+    "enabled": true,
+    "logs": { "head_sampling_rate": 1 }
+  }
+
+  // Custom domain: once the domain is on your Cloudflare account, uncomment and set it.
+  // , "routes": [{ "pattern": "example.com", "custom_domain": true }]
+}

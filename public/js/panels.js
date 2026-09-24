@@ -539,7 +539,7 @@ function startClocks() {
 function sourceStatus(key, st) {
   if (!st || st.loading) return { cls: 'loading', text: 'Loading…' };
   if (key === 'radar' && st.data && st.data.configured === false) {
-    return { cls: 'off', text: 'Not configured — add CLOUDFLARE_API_TOKEN to .env (free token, "Radar: Read")' };
+    return { cls: 'off', text: 'Not configured — set RADAR_API_TOKEN (free Cloudflare token with "Radar: Read")' };
   }
   if (st.data && st.error) return { cls: 'stale', text: `Serving cached data — ${st.error}` };
   if (st.data) {

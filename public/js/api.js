@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Api — polls the local proxy (server.js) for each real data source.
+   Api — polls the data server (server.js locally, or the Worker when hosted) for each source.
    The proxy caches upstream responses, so these intervals only control how
    quickly the page notices new data; they never hit the upstream APIs directly.
    ========================================================================== */
@@ -39,7 +39,7 @@ const Api = {
         stale: !!prev.data,
         error: location.protocol === 'file:'
           ? 'Page opened as a file — run `node server.js` and open http://localhost:8080'
-          : `Local data server unreachable (${err.message})`,
+          : `Data server unreachable (${err.message})`,
       };
     }
     this.state[key] = next;
