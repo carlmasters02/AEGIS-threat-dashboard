@@ -5,6 +5,8 @@
 ![Runtime dependencies: none](https://img.shields.io/badge/runtime%20dependencies-none-3ee6ff.svg)
 ![Cloudflare Workers](https://img.shields.io/badge/deploys%20to-Cloudflare%20Workers-f38020.svg)
 
+**Live: [aegisthreatdashboard.com](https://aegisthreatdashboard.com)**
+
 A SOC-style dashboard with a 3D threat heatmap globe and live intel panels, built entirely on
 **real, public threat-intelligence feeds**. Nothing is simulated: if a source is unavailable,
 its panels say so instead of inventing numbers.
@@ -83,6 +85,11 @@ limits. The dashboard files in `public/` are served as static assets with the sa
 of CPU time and 50 outbound requests. Parsing the URLhaus feed alone exceeds that CPU limit, and a
 full refresh makes about 60 requests.
 
+`wrangler.jsonc` is set up for this project's domain (`aegisthreatdashboard.com`), with the
+`*.workers.dev` address and preview URLs turned off. To deploy your own copy, first either change
+`routes` to your domain (see [Custom domain](#custom-domain)), or remove `routes` and set
+`"workers_dev": true` to use a free `*.workers.dev` address.
+
 ```bash
 npm install                                   # installs Wrangler (deploy tool only)
 npx wrangler login                            # one-time browser login
@@ -91,20 +98,25 @@ npx wrangler secret put CONTACT_EMAIL         # optional
 npx wrangler deploy                           # or: npm run deploy
 ```
 
-The first deploy creates the KV namespace automatically and prints a `*.workers.dev` URL. Data
-appears within **5 minutes**, after the first cron run. Until then the panels say
-"Collecting data". Follow the logs with `npx wrangler tail`.
+The first deploy creates the KV namespace automatically and prints the address the Worker is
+served on. Data appears within **5 minutes** after the first cron run (a brand-new cron trigger
+can take a few extra minutes to start). Until then the panels say "Collecting data". Follow the
+logs with `npx wrangler tail`.
 
 ### Custom domain
 
 1. Add your domain to Cloudflare. The easiest way is buying it through
    [Cloudflare Registrar](https://www.cloudflare.com/products/registrar/) (sold at cost); a
    domain bought elsewhere works too, once you point its nameservers at Cloudflare.
-2. In `wrangler.jsonc`, uncomment the `routes` line and set your domain:
+2. In `wrangler.jsonc`, set `routes` to your domain:
    ```jsonc
-   "routes": [{ "pattern": "yourdomain.com", "custom_domain": true }]
+   "routes": [{ "pattern": "yourdomain.com", "custom_domain": true }],
+   "workers_dev": false,
+   "preview_urls": false
    ```
-3. Run `npx wrangler deploy` again. Cloudflare creates the DNS record and TLS certificate.
+   `workers_dev` and `preview_urls` are off because those addresses live on your account's
+   `workers.dev` subdomain, which Cloudflare derives from your account email.
+3. Run `npx wrangler deploy`. Cloudflare creates the DNS record and TLS certificate.
 
 ### Testing the Worker locally
 
