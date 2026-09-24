@@ -1,0 +1,17 @@
+{
+  "name": "aegis-threat-dashboard",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Global cyber threat dashboard built on live public threat-intelligence feeds",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlmasters02/AEGIS-threat-dashboard.git"
+  },
+  "homepage": "https://github.com/carlmasters02/AEGIS-threat-dashboard#readme"
+}

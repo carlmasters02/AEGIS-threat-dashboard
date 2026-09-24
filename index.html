@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AEGIS Threat Operations</title>
+  <meta name="description" content="Global cyber threat dashboard built on live public threat-intelligence feeds.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M16 2 28 7v9c0 7.2-5 12.4-12 14C9 28.4 4 23.2 4 16V7z%27 fill=%27%23a100ff%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ============================ TOP BAR ============================ -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 2 28 7v9c0 7.2-5 12.4-12 14C9 28.4 4 23.2 4 16V7z" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M16 8v16M10 13l6-5 6 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">AEGIS</span>
+        <span class="brand-sub">Global Cyber Threat Operations Center</span>
+      </div>
+    </div>
+
+    <a class="threat-level" id="threatLevel" href="https://isc.sans.edu/infocon.html" target="_blank" rel="noopener">
+      <span class="tl-label">SANS ISC Infocon</span>
+      <div class="tl-segs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <span class="tl-value" id="threatLevelValue">…</span>
+    </a>
+
+    <div class="topbar-right">
+      <button class="feed-badge" id="sourcesBtn" type="button" aria-haspopup="dialog">
+        <span class="live-dot"></span> <span id="sourcesSummary">CONNECTING…</span>
+      </button>
+      <div class="clocks">
+        <div class="clock"><span class="clock-label">UTC</span><span class="clock-time" id="clockUtc">--:--:--</span></div>
+        <div class="clock"><span class="clock-label">LOCAL</span><span class="clock-time" id="clockLocal">--:--:--</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <main class="layout">
+
+    <!-- ============================ GLOBE ============================ -->
+    <section class="panel globe-panel" aria-label="Global threat heatmap">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+
+      <div id="globe" class="globe"></div>
+      <div class="globe-loading" id="globeLoading">Initialising geospatial layer…</div>
+
+      <div class="globe-overlay top-left">
+        <h2 class="panel-title"><span class="live-dot"></span>Global Threat Heatmap</h2>
+        <div class="big-counter">
+          <span class="big-counter-value mono" id="bigCounter">—</span>
+          <span class="big-counter-label" id="bigCounterLabel">firewall &amp; honeypot reports · DShield</span>
+        </div>
+        <div class="mini-stats">
+          <div><span class="mono" id="miniSources">—</span><span class="lbl">attacking IPs</span></div>
+          <div><span class="mono" id="miniCorridors">—</span><span class="lbl">attack corridors</span></div>
+        </div>
+      </div>
+
+      <div class="globe-overlay top-right globe-controls">
+        <div class="heat-modes" id="heatModes" role="radiogroup" aria-label="Heat layer"></div>
+        <div class="globe-toggles">
+          <button class="chip-btn is-on" id="rotateBtn" aria-pressed="true">Auto-rotate</button>
+          <button class="chip-btn is-on" id="arcsBtn" aria-pressed="true">Corridors</button>
+        </div>
+        <div class="group-filter" id="groupFilter" hidden>
+          <span>Victims of <b id="groupFilterName"></b></span>
+          <button class="x-btn" id="groupFilterClear" aria-label="Clear group filter">✕</button>
+        </div>
+      </div>
+
+      <div class="globe-overlay bottom-left legend">
+        <div class="legend-title" id="legendTitle">Heat layer</div>
+        <div class="legend-ramp"></div>
+        <div class="legend-scale"><span id="legendMin">0</span><span id="legendUnit"></span><span id="legendMax">—</span></div>
+        <div class="legend-notes" id="legendNotes"></div>
+      </div>
+
+      <div class="globe-overlay bottom-right stream">
+        <div class="legend-title">Newest malware URLs · URLhaus</div>
+        <ol class="stream-list mono" id="streamList"><li class="empty">Waiting for URLhaus…</li></ol>
+      </div>
+
+      <aside class="country-card" id="countryCard" hidden aria-live="polite">
+        <button class="x-btn country-close" id="countryClose" aria-label="Close country details">✕</button>
+        <div id="countryCardBody"></div>
+      </aside>
+    </section>
+
+    <!-- ============================ SIDE PANELS ============================ -->
+    <section class="side">
+
+      <div class="kpis" id="kpis">
+        <div class="kpi" data-kpi="dshield"><span class="lbl">DShield reports · 24h</span><span class="kpi-value mono">—</span><span class="kpi-sub"></span></div>
+        <div class="kpi kpi-crit" data-kpi="ransom"><span class="lbl">Ransomware victims · 7d</span><span class="kpi-value mono">—</span><span class="kpi-sub"></span></div>
+        <div class="kpi" data-kpi="kev"><span class="lbl">KEV additions · 30d</span><span class="kpi-value mono">—</span><span class="kpi-sub"></span></div>
+        <div class="kpi" data-kpi="urlhaus"><span class="lbl">Malware URLs · 24h</span><span class="kpi-value mono">—</span><span class="kpi-sub"></span></div>
+        <div class="kpi" data-kpi="fifth"><span class="lbl">Internet outages · 7d</span><span class="kpi-value mono">—</span><span class="kpi-sub"></span></div>
+      </div>
+
+      <article class="panel p-actors">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <header class="panel-head">
+          <h2 class="panel-title">Ransomware Group Leaderboard</h2>
+          <span class="panel-meta" id="actorsMeta">victims claimed · 30d</span>
+        </header>
+        <div class="actor-cols"><span>#</span><span>Group</span><span>Daily · 30d</span><span>Victims</span><span title="Change vs the previous 30 days">Δ 30d</span></div>
+        <ol class="actors" id="actorList"><li class="empty">Loading ransomware.live…</li></ol>
+      </article>
+
+      <article class="panel p-alerts">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <header class="panel-head">
+          <h2 class="panel-title"><span class="live-dot crit"></span>Threat Intel Alerts</h2>
+          <div class="sev-filter" id="sevFilter" role="group" aria-label="Filter alerts by severity">
+            <button class="sev-chip is-on" data-sev="all">All <b data-count="all">0</b></button>
+            <button class="sev-chip" data-sev="critical" style="--c: var(--crit)">Crit <b data-count="critical">0</b></button>
+            <button class="sev-chip" data-sev="high" style="--c: var(--high)">High <b data-count="high">0</b></button>
+            <button class="sev-chip" data-sev="medium" style="--c: var(--med)">Med <b data-count="medium">0</b></button>
+            <button class="sev-chip" data-sev="low" style="--c: var(--low)">Low <b data-count="low">0</b></button>
+          </div>
+        </header>
+        <ol class="alerts" id="alertList"><li class="empty">Loading intel feeds…</li></ol>
+      </article>
+
+      <article class="panel p-vectors">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <header class="panel-head">
+          <h2 class="panel-title">Attack Vectors</h2>
+          <select class="panel-select" id="vectorSelect" aria-label="Attack vector dataset"></select>
+        </header>
+        <ul class="bars" id="vectorList"></ul>
+        <div class="panel-foot" id="vectorFoot"></div>
+      </article>
+
+      <article class="panel p-targets">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <header class="panel-head">
+          <h2 class="panel-title">Most Targeted</h2>
+          <select class="panel-select" id="targetSelect" aria-label="Targeted countries dataset"></select>
+        </header>
+        <ul class="bars" id="targetList"></ul>
+        <div class="panel-foot" id="targetFoot"></div>
+      </article>
+
+      <article class="panel p-timeline">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <header class="panel-head">
+          <h2 class="panel-title">Activity Trend</h2>
+          <select class="panel-select" id="timelineSelect" aria-label="Trend dataset"></select>
+        </header>
+        <div class="timeline-wrap"><canvas id="timeline"></canvas><div class="timeline-empty" id="timelineEmpty" hidden></div></div>
+        <div class="panel-foot" id="timelineFoot"></div>
+      </article>
+
+      <article class="panel p-cves">
+        <span class="corner tl"></span><span class="corner br"></span>
+        <header class="panel-head">
+          <h2 class="panel-title">Known Exploited Vulnerabilities</h2>
+          <span class="panel-meta" id="kevMeta">CISA KEV · newest</span>
+        </header>
+        <div class="cves-scroll">
+          <table class="cves">
+            <thead><tr><th>CVE</th><th>Vendor · Product</th><th>Added</th><th title="FIRST EPSS: probability of exploitation in the next 30 days">EPSS</th></tr></thead>
+            <tbody id="cveBody"><tr><td colspan="4" class="empty">Loading CISA KEV…</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- ============================ TICKER ============================ -->
+  <footer class="ticker">
+    <span class="ticker-tag">INTEL</span>
+    <div class="ticker-viewport"><div class="ticker-track mono" id="tickerTrack"></div></div>
+  </footer>
+
+  <!-- ============================ SOURCES DIALOG ============================ -->
+  <dialog class="sources-dialog" id="sourcesDialog" aria-labelledby="sourcesTitle">
+    <header class="panel-head">
+      <h2 class="panel-title" id="sourcesTitle">Data sources</h2>
+      <button class="x-btn" id="sourcesClose" aria-label="Close">✕</button>
+    </header>
+    <p class="sources-intro">Every figure on this dashboard comes from the public feeds below, fetched by the local
+      proxy (<code>server.js</code>) and cached to respect each provider’s rate limits. Nothing is simulated;
+      when a source is unavailable its panels say so.</p>
+    <ul class="sources-list" id="sourcesList"></ul>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js" integrity="sha384-1uolMBZ25k3zJcNwCLEv49+L+m2dZudqAzsoSAJfQTzDCSBxJzrMuZ2dkp/5JKiT" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+  <script src="js/data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/globe.js"></script>
+  <script src="js/panels.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
